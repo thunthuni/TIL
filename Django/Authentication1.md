@@ -46,6 +46,7 @@ authentification 과 관련된 경로나 키워드들은 장고 내에서 accoun
   - 별도의 설정 없이 사용할 수 있어 간편하지만, 개발자가 직접 수정할 수 없는 문제가 존재
 
 #### 1단계
+: AbstractUser 클래스를 상속받는 커스텀 User클래스 작성
 ```python 
 # accounts/models.py
 from django.contrib.auth.models import AbstractUser
@@ -63,7 +64,7 @@ AUTH_USER_MODEL = 'accounts.User'
 ```python 
 # accounts/admin.py
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.admin import UserAdmin 
 from .models import User
 
 admin.site.register(User, UserAdmin)
@@ -90,7 +91,51 @@ session을 create 하는 과정
 - `login(request, user)`
   - AuthenticationForm을 통해 인증된 사용자를 로그인 하는 함수 
 - `get_user()`
+  - AuthenticationForm의 인스턴스 메서드
   - 유효성 검사를 통과했을 경우 로그인 한 사용자 객체를 반환
+### 코드의 흐름 
+#### urls.py 
+```python 
+app_name = 'accounts'
+urlplatterns = [
+  path('login/', views.login, name='login'),
+]
+```
+#### views.py
+```python 
+from django.shortcuts import render, redirect
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login as auth_login
+
+def login(request):
+  if request.method == 'POST':
+    form = AuthenticationForm(request, request.POST)
+    if form.is_valid():
+      auth_login(request, form.get_user())
+      return redirect('articles:index')
+  else:
+    form = AuthenticationForm()
+  context = {
+    'form' : form, 
+  }
+  return render(request, 'accounts:login', context)
+```
 ## logout
 : 현재 요청에 대한 Session Data를 DB에서 삭제 
 - 클라이언트의 쿠키에서도 session id 를 삭제
+### accounts/urls.py
+```python 
+app_name = 'accounts'
+urlpatterns = [
+  path('logout/', views.logout, name = 'logout'),
+]
+```
+### accounts/views.py
+```python 
+from django.contrib.auth import logout as auth_logout
+
+def logout(request):
+  auth_logout(request)
+  return redirect('articles:index')
+
+```
