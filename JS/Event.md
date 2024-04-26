@@ -18,3 +18,14 @@
 
 ## Bubbling
 : 한 요소에 이벤트가 발생하면, 이 요소에 할당된 핸들러가 동작하고, 이어서 부모 요소의 핸들러가 동작하는 현상
+
+### currentTarget 주의사항
+- console.log()로 event 객체를 출력할 경우 currentTarget 키의 값은 null을 가짐
+- currentTarget 은 이벤트가 처리되는 동안에만 사용할 수 있기 때문
+- => current Target 이후의 속성 값들은 'target'을 참고해서 사용
+## 예시
+```
+
+```
+
+- lodash 
